@@ -229,7 +229,6 @@ impl Symbol {
 #[derive(Debug)]
 pub struct SymbolIter<'a> {
     data: &'a [u8],
-    offset: usize,
     count: usize,
     current: usize,
     entry_size: usize,
@@ -249,7 +248,6 @@ impl<'a> SymbolIter<'a> {
 
         Ok(SymbolIter {
             data: section_data,
-            offset: 0,
             count,
             current: 0,
             entry_size,

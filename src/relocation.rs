@@ -268,7 +268,6 @@ impl RelocationAddend {
 /// Relocation iterator for Rel format
 pub struct RelocationIter<'a> {
     data: &'a [u8],
-    offset: usize,
     count: usize,
     current: usize,
     entry_size: usize,
@@ -289,7 +288,6 @@ impl<'a> RelocationIter<'a> {
 
         Ok(RelocationIter {
             data: section_data,
-            offset: 0,
             count,
             current: 0,
             entry_size,
@@ -345,7 +343,6 @@ impl<'a> ExactSizeIterator for RelocationIter<'a> {}
 /// Relocation iterator for Rela format
 pub struct RelocationAddendIter<'a> {
     data: &'a [u8],
-    offset: usize,
     count: usize,
     current: usize,
     entry_size: usize,
@@ -366,7 +363,6 @@ impl<'a> RelocationAddendIter<'a> {
 
         Ok(RelocationAddendIter {
             data: section_data,
-            offset: 0,
             count,
             current: 0,
             entry_size,

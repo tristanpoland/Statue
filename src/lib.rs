@@ -47,6 +47,7 @@ pub mod relocation;
 pub mod loader;
 pub mod execution;
 pub mod arch;
+pub mod memory;
 
 pub use error::{ElfError, Result};
 pub use header::{ElfHeader, ElfFile};

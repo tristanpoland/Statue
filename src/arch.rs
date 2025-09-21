@@ -3,6 +3,19 @@
 use crate::error::{ElfError, Result};
 use crate::header::ElfMachine;
 
+/// CPU features that can be detected
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CpuFeature {
+    /// x86_64 long mode support
+    X86_64,
+    /// SSE instruction set
+    SSE,
+    /// AVX instruction set
+    AVX,
+    /// SYSCALL/SYSRET instructions
+    SYSCALL,
+}
+
 /// Architecture-specific information and helpers
 pub trait Architecture {
     /// Get the pointer size in bytes
@@ -63,8 +76,103 @@ impl X86_64 {
 
     /// Check if the CPU supports required features
     pub fn check_features(&self) -> Result<()> {
-        // In a real implementation, this would check CPUID
+        // Check for required x86_64 features
+        if !self.has_feature(CpuFeature::X86_64) {
+            return Err(ElfError::UnsupportedArchitecture);
+        }
+
+        // Check for SSE support (commonly required)
+        if !self.has_feature(CpuFeature::SSE) {
+            return Err(ElfError::UnsupportedArchitecture);
+        }
+
         Ok(())
+    }
+
+    /// Check if a specific CPU feature is available
+    pub fn has_feature(&self, feature: CpuFeature) -> bool {
+        match feature {
+            CpuFeature::X86_64 => {
+                // Check for long mode support
+                self.cpuid_extended_feature(0x80000001, 29) // LM bit
+            }
+            CpuFeature::SSE => {
+                // Check for SSE support
+                self.cpuid_feature(1, 25) // SSE bit in EDX
+            }
+            CpuFeature::AVX => {
+                // Check for AVX support
+                self.cpuid_feature(1, 28) // AVX bit in ECX
+            }
+            CpuFeature::SYSCALL => {
+                // Check for SYSCALL/SYSRET support
+                self.cpuid_extended_feature(0x80000001, 11) // SYSCALL bit
+            }
+        }
+    }
+
+    /// Execute CPUID instruction and check feature bit
+    fn cpuid_feature(&self, leaf: u32, bit: u32) -> bool {
+        #[cfg(target_arch = "x86_64")]
+        {
+            unsafe {
+                let mut eax: u32;
+                let mut ecx: u32;
+                let mut edx: u32;
+                core::arch::asm!(
+                    "mov {leaf:e}, %eax",
+                    "cpuid",
+                    "mov %eax, {eax:e}",
+                    "mov %ecx, {ecx:e}",
+                    "mov %edx, {edx:e}",
+                    leaf = in(reg) leaf,
+                    eax = out(reg) eax,
+                    ecx = out(reg) ecx,
+                    edx = out(reg) edx,
+                );
+                // Check bit in ECX for leaf 1
+                if leaf == 1 && bit < 32 {
+                    (ecx & (1 << bit)) != 0
+                } else {
+                    // Check bit in EDX for other cases
+                    (edx & (1 << bit)) != 0
+                }
+            }
+        }
+        #[cfg(not(target_arch = "x86_64"))]
+        {
+            // For non-x86_64 platforms, assume features are available
+            // This allows the library to compile on other architectures
+            true
+        }
+    }
+
+    /// Execute extended CPUID instruction and check feature bit
+    fn cpuid_extended_feature(&self, leaf: u32, bit: u32) -> bool {
+        #[cfg(target_arch = "x86_64")]
+        {
+            unsafe {
+                let mut eax: u32;
+                let mut ecx: u32;
+                let mut edx: u32;
+                core::arch::asm!(
+                    "mov {leaf:e}, %eax",
+                    "cpuid",
+                    "mov %eax, {eax:e}",
+                    "mov %ecx, {ecx:e}",
+                    "mov %edx, {edx:e}",
+                    leaf = in(reg) leaf,
+                    eax = out(reg) eax,
+                    ecx = out(reg) ecx,
+                    edx = out(reg) edx,
+                );
+                (edx & (1 << bit)) != 0
+            }
+        }
+        #[cfg(not(target_arch = "x86_64"))]
+        {
+            true
+        }
     }
 
     /// Set up initial processor state for execution
