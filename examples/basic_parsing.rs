@@ -200,8 +200,3 @@ fn analyze_real_elf_file(file_data: &[u8]) -> Result<()> {
 
     Ok(())
 }
-
-#[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
