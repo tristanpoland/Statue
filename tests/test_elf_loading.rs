@@ -1,8 +1,8 @@
 //! Comprehensive tests for ELF binary loading and execution
 
+extern crate alloc;
 use alloc::vec::Vec;
 use statue::*;
-use statue::arch::Architecture;
 use statue::loader::MemoryAllocator;
 
 /// Create a minimal valid x86_64 ELF executable for testing
@@ -394,7 +394,7 @@ mod tests {
             Err(ElfError::InvalidProgramHeader) => {
                 // Expected
             }
-            Err(e) => {
+            Err(_e) => {
                 // Unexpected error
             }
             Ok(_) => {

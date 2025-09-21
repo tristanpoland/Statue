@@ -4,7 +4,6 @@
 //! about its structure, headers, and sections.
 
 extern crate alloc;
-use alloc::vec::Vec;
 
 use statue::{ElfFile, ElfError, Result};
 use statue::program::ProgramHeaderIter;
@@ -146,8 +145,7 @@ fn demonstrate_validation() {
 }
 
 /// Main example function
-#[no_mangle]
-pub extern "C" fn main() -> i32 {
+fn main() {
     println!("Statue ELF Parsing Example");
     println!("=========================");
 
@@ -168,8 +166,6 @@ pub extern "C" fn main() -> i32 {
 
     // Show validation features
     demonstrate_validation();
-
-    0
 }
 
 /// Example of working with real ELF data

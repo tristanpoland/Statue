@@ -3,7 +3,6 @@
 use std::vec::Vec;
 use statue::*;
 use statue::arch::Architecture;
-use statue::loader::MemoryAllocator;
 
 /// Create a minimal valid x86_64 ELF executable
 fn create_minimal_x86_64_elf() -> Vec<u8> {
