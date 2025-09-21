@@ -7,6 +7,7 @@ use alloc::collections::BTreeMap;
 
 /// Page size constants
 pub const PAGE_SIZE: usize = 4096;
+/// Bitmask for the offset within a page (used to extract the offset from an address).
 pub const PAGE_MASK: usize = PAGE_SIZE - 1;
 
 /// Memory protection flags
