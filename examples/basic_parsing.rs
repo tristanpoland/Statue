@@ -3,9 +3,6 @@
 //! This example demonstrates how to parse an ELF file and extract basic information
 //! about its structure, headers, and sections.
 
-#![no_std]
-#![no_main]
-
 extern crate alloc;
 use alloc::vec::Vec;
 
